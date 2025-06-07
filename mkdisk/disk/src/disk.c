@@ -16,9 +16,11 @@
  */
 
 #include "diskimpl.h"
+#include "logger.h"
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 static disk_t disk_init() {
@@ -33,6 +35,9 @@ static disk_t disk_init() {
 }
 
 disk_t disk_open(const char *file) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+    lprintf(mkdisklog, LOG_LEVEL_DEBUG, "opening disk image from file '%s'", file);
+
     disk_t disk = disk_init();
     if(disk == NULL) {
         return NULL;
@@ -40,6 +45,9 @@ disk_t disk_open(const char *file) {
 
     int fd = open(file, O_RDWR, 00666);
     if(fd < 0) {
+        int err = errno;
+        lprintf(mkdisklog, LOG_LEVEL_ERROR, "failed to open disk image file '%s': %s", file, strerrno);
+        errno = err;
         free(disk);
         return NULL;
     }
@@ -49,12 +57,16 @@ disk_t disk_open(const char *file) {
 }
 
 disk_t disk_openfrom(int file) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+    lprintf(mkdisklog, LOG_LEVEL_DEBUG, "opening disk image from file descriptor %d", file);
+
     int flags = fcntl(file, F_GETFL);
     if(flags == -1) {
         return NULL;
     }
 
     if((flags & O_ACCMODE) != O_RDWR) {
+        lprintf(mkdisklog, LOG_LEVEL_ERROR, "disk image file descriptor is not read-write");
         errno = EBADF;
         return NULL;
     }
@@ -75,6 +87,7 @@ disk_t disk_openfrom(int file) {
 }
 
 int disk_close(disk_t disk) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
     if(disk->file != -1) {
         if(close(disk->file) != 0) {
             return -1;
@@ -86,6 +99,9 @@ int disk_close(disk_t disk) {
 }
 
 disk_t disk_create(const char *file, diskpos_t size) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+    lprintf(mkdisklog, LOG_LEVEL_DEBUG, "creating disk image file '%s' of size %jd%+jdb", file, (intmax_t) size.sector, (intmax_t) size.offset);
+
     off_t abs_size;
     {
         struct disk dummy = DISK_DEFAULT;

@@ -16,15 +16,19 @@
  */
 
 #include "diskimpl.h"
+#include "logger.h"
 
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 static off_t disk_size_raw(disk_t disk) {
     return lseek(disk->file, 0, SEEK_END);
 }
 
 diskpos_t disk_size(disk_t disk) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+
     off_t size = disk_size_raw(disk);
     if(size < 0) {
         return DISKPOS_INVALID;
@@ -63,6 +67,9 @@ static int disk_check_and_seek(disk_t disk, diskpos_t pos, size_t len) {
 }
 
 int disk_read(disk_t disk, diskpos_t pos, void *buf, size_t len) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+    lprintf(mkdisklog, LOG_LEVEL_DEBUG, "reading %zu bytes from disk at position %jd%+jdb", len, (intmax_t) pos.sector, (intmax_t) pos.offset);
+
     if(disk_check_and_seek(disk, pos, len) != 0) {
         return -1;
     }
@@ -85,6 +92,9 @@ int disk_read(disk_t disk, diskpos_t pos, void *buf, size_t len) {
 }
 
 int disk_write(disk_t disk, diskpos_t pos, const void *buf, size_t len) {
+    lprintf(mkdisklog, LOG_LEVEL_TRACE, "%s", __FUNCTION__);
+    lprintf(mkdisklog, LOG_LEVEL_DEBUG, "writing %zu bytes to disk at position %jd%+jdb", len, (intmax_t) pos.sector, (intmax_t) pos.offset);
+
     if(disk_check_and_seek(disk, pos, len) != 0) {
         return -1;
     }
