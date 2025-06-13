@@ -41,6 +41,29 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ModLogC)
 
+if(NOT BUILD_SHARED_LIBS)
+    set(ZLIB_USE_STATIC_LIBS ON)
+endif()
+
+FetchContent_Declare(
+    ZLIB
+    GIT_REPOSITORY https://github.com/madler/zlib.git
+    GIT_TAG        51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf
+    GIT_SHALLOW    ON
+    SYSTEM
+    EXCLUDE_FROM_ALL
+    FIND_PACKAGE_ARGS
+)
+FetchContent_MakeAvailable(ZLIB)
+
+if(NOT TARGET ZLIB::ZLIB)
+    if(BUILD_SHARED_LIBS)
+        add_library(ZLIB::ZLIB ALIAS zlib)
+    else()
+        add_library(ZLIB::ZLIB ALIAS zlibstatic)
+    endif()
+endif()
+
 if(EASYCONFIG_BUILD_TESTING)
     enable_language(CXX)
 

@@ -15,26 +15,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _VDISK_H
-#define _VDISK_H
+#include "vdisk.h"
 
+#include <fcntl.h>
+#include <unistd.h>
 
-#include <modlogc.h>
-#include <stdint.h>
+int generate_guid(uint8_t guid[16]) {
+    int rng = open("/dev/urandom", O_RDONLY);
+    if(rng < 0) {
+        return -1;
+    }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    size_t total = 0;
+    while(total < 16) {
+        ssize_t rlen = read(rng, guid + total, 16 - total);
+        if(rlen < 0) {
+            int err = errno;
+            close(rng);
+            errno = err;
+            return -1;
+        } else if(rlen == 0) {
+            close(rng);
+            errno = EIO;
+            return -1;
+        }
 
+        total += (size_t) rlen;
+    }
 
-extern logger_t log_vdisk;
-
-int generate_guid(uint8_t guid[16]);
-
-
-#ifdef __cplusplus
+    if(close(rng) != 0) {
+        return -1;
+    }
+    return 0;
 }
-#endif
-
-
-#endif

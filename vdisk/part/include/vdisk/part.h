@@ -15,21 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _VDISK_H
-#define _VDISK_H
+#ifndef _VDISK_PART_H
+#define _VDISK_PART_H
 
 
-#include <modlogc.h>
-#include <stdint.h>
+#include "vdisk/disk.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-extern logger_t log_vdisk;
+typedef enum {
+    PART_TABLE_UNKNOWN = -1,
 
-int generate_guid(uint8_t guid[16]);
+    PART_TABLE_GPT = 1,
+} part_table_type_t;
+
+part_table_type_t disk_identify(disk_t disk);
+int disk_format(disk_t disk, part_table_type_t table_type);
+int disk_verify(disk_t disk, part_table_type_t table_type);
 
 
 #ifdef __cplusplus

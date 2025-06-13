@@ -15,26 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _VDISK_H
-#define _VDISK_H
+#include "VDiskDiskTest.hpp"
 
+#include "vdisk/part.h"
 
-#include <modlogc.h>
-#include <stdint.h>
+class GPTTest : public DiskTest {
+  protected:
+    void SetUp() override {
+        DiskTest::SetUp();
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-extern logger_t log_vdisk;
-
-int generate_guid(uint8_t guid[16]);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-
-#endif
+        ASSERT_EQ(disk_format(disk, PART_TABLE_GPT), 0);
+    }
+};

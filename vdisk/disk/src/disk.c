@@ -37,8 +37,10 @@ disk_t disk_open(const char *filename) {
 
     disk->fd = open(filename, O_RDWR, 00666);
     if(disk->fd < 0) {
+        int err = errno;
         lprintf(log_vdisk, LOG_LEVEL_ERROR, "failed to open disk '%s'", filename);
         free(disk);
+        errno = err;
         return NULL;
     }
 

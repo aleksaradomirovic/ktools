@@ -22,6 +22,7 @@ easyconfig_add_gtest(vdisk_test)
 
 add_library(
     vdisk_common
+        common/src/guid.c
         common/src/logging.c
 )
 target_include_directories(
@@ -33,7 +34,7 @@ target_include_directories(
 
 easyconfig_add_gtest(
     vdisk_common_basic
-    PARENT vdisk
+    PARENT vdisk_test
         common/test/VDiskCommonTest.cpp
 )
 target_link_libraries(
@@ -58,11 +59,56 @@ target_include_directories(
 
 easyconfig_add_gtest(
     vdisk_disk_basic
-    PARENT vdisk
+    PARENT vdisk_test
         disk/test/VDiskDiskTest.cpp
 )
 target_link_libraries(
     vdisk_disk_basic
     PRIVATE
         vdisk_disk
+)
+
+add_library(
+    vdisk_part
+        part/src/gpt/format.c
+
+        part/src/part.c
+)
+target_include_directories(
+    vdisk_part
+    PUBLIC
+        part/include
+        part/test
+)
+target_link_libraries(
+    vdisk_part
+    PUBLIC
+        vdisk_disk
+    PRIVATE
+        ZLIB::ZLIB
+)
+
+easyconfig_add_gtest(
+    vdisk_part_gpt
+    PARENT vdisk_test
+        part/test/GPTTest.cpp
+)
+target_link_libraries(
+    vdisk_part_gpt
+    PRIVATE
+        vdisk_part
+)
+
+add_executable(
+    vdisk
+        main/src/main.c
+        main/src/part.c
+)
+target_link_libraries(
+    vdisk
+    PRIVATE
+        modlogc
+        vdisk_common
+        vdisk_disk
+        vdisk_part
 )

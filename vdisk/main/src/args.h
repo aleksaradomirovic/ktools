@@ -15,26 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _VDISK_H
-#define _VDISK_H
+#pragma once
 
+#include <argp.h>
 
-#include <modlogc.h>
-#include <stdint.h>
+#include "vdisk/disk.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+extern disk_t disk;
+extern int (*mode)();
 
+extern const struct argp part_args_info;
 
-extern logger_t log_vdisk;
-
-int generate_guid(uint8_t guid[16]);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-
-#endif
+int mode_part();

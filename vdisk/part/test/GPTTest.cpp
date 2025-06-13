@@ -15,26 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _VDISK_H
-#define _VDISK_H
-
+#include "GPTTest.hpp"
 
 #include <modlogc.h>
-#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "vdisk.h"
 
-
-extern logger_t log_vdisk;
-
-int generate_guid(uint8_t guid[16]);
-
-
-#ifdef __cplusplus
+TEST_F(GPTTest, FormatAndVerify) {
+    EXPECT_EQ(disk_verify(disk, PART_TABLE_GPT), 0);
 }
-#endif
-
-
-#endif
